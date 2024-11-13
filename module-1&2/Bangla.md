@@ -1,3 +1,205 @@
+# Basics of MongoDB
+এখানে MongoDB-এর সাধারণ কিছু কমান্ড এবং অপারেটর নিয়ে বিস্তারিত আলোচনা করা হয়েছে। চলুন, প্রতিটি অংশ বুঝে দেখি:
+
+---
+
+### **বেসিক CRUD অপারেশন এবং প্রকজেকশন**
+
+CRUD মানে হল **Create, Read, Update, এবং Delete**। MongoDB এই অপারেশনগুলো কীভাবে পরিচালনা করে, তা নিচে দেখানো হয়েছে:
+
+#### **ডকুমেন্ট ইনসার্ট করা: `insertOne` এবং `insertMany`**
+
+MongoDB-তে ডেটা যোগ করা খুবই সহজ। একক ডকুমেন্ট যোগ করতে `insertOne` এবং একাধিক ডকুমেন্ট যোগ করতে `insertMany` ব্যবহার করা হয়।
+
+```javascript
+// একক ডকুমেন্ট ইনসার্ট করা
+db.users.insertOne({ name: "Alice", age: 28, city: "New York" });
+
+// একাধিক ডকুমেন্ট ইনসার্ট করা
+db.users.insertMany([
+  { name: "Bob", age: 35, city: "San Francisco" },
+  { name: "Charlie", age: 40, city: "Los Angeles" },
+]);
+```
+
+#### **ডকুমেন্ট রিট্রিভ করা: `find` এবং `findOne` সহ ফিল্ড ফিল্টারিং**
+
+`find` ব্যবহার করে একাধিক ডকুমেন্ট বা `findOne` ব্যবহার করে একক ডকুমেন্ট বের করা যায়। আপনি `projection` ব্যবহার করে কোন ফিল্ডগুলো দেখাতে চান তা সীমাবদ্ধ করতে পারেন।
+
+```javascript
+// "New York" শহরের সব ইউজার খুঁজুন এবং শুধুমাত্র "name" ফিল্ড দেখান
+db.users.find({ city: "New York" }, { name: 1, _id: 0 });
+
+// একক ইউজার খুঁজুন যার নাম "Alice" এবং শুধুমাত্র "name" এবং "age" দেখান
+db.users.findOne({ name: "Alice" }, { name: 1, age: 1, _id: 0 });
+```
+
+---
+
+### **কম্প্যারিজন অপারেটর: শর্তে ডেটা ফিল্টারিং**
+
+MongoDB-র কম্প্যারিজন অপারেটরগুলি আপনাকে কুয়েরিতে নির্দিষ্ট শর্ত মিলিয়ে ডেটা খুঁজতে সাহায্য করে।
+
+#### **কমন কম্প্যারিজন অপারেটর: `$eq`, `$ne`, `$gt`, `$lt`, `$gte`, `$lte`**
+
+- `$eq`: "সমান"
+- `$ne`: "সমান নয়"
+- `$gt`: "বড়"
+- `$lt`: "ছোট"
+- `$gte`: "বড় বা সমান"
+- `$lte`: "ছোট বা সমান"
+
+```javascript
+// বয়স 28 এর সমান ইউজার খুঁজুন
+db.users.find({ age: { $eq: 28 } });
+
+// বয়স 28 এর সমান নয় এমন ইউজার খুঁজুন
+db.users.find({ age: { $ne: 28 } });
+
+// বয়স 30 এর বেশি এমন ইউজার খুঁজুন
+db.users.find({ age: { $gt: 30 } });
+
+// বয়স 35 এর কম এমন ইউজার খুঁজুন
+db.users.find({ age: { $lt: 35 } });
+```
+
+---
+
+### **ইনক্লুশন অপারেটর: `$in` এবং `$nin`**
+
+এই অপারেটরগুলি আপনাকে এমন ডকুমেন্ট খুঁজতে দেয় যেখানে একটি ফিল্ডের মান নির্দিষ্ট মানের তালিকায় রয়েছে বা নেই।
+
+```javascript
+// "New York" বা "San Francisco" শহরের ইউজার খুঁজুন
+db.users.find({ city: { $in: ["New York", "San Francisco"] } });
+
+// "Los Angeles" বা "San Francisco" শহরে না থাকা ইউজার খুঁজুন
+db.users.find({ city: { $nin: ["Los Angeles", "San Francisco"] } });
+```
+
+---
+
+### **লজিকাল অপারেটর: `$and` এবং `$or`**
+
+লজিকাল অপারেটরগুলির মাধ্যমে আপনি একাধিক শর্ত একসাথে যোগ করতে পারেন।
+
+```javascript
+// বয়স 30 এর বেশি এবং শহর "New York" এমন ইউজার খুঁজুন
+db.users.find({ $and: [{ age: { $gt: 30 } }, { city: "New York" }] });
+
+// বয়স 30 এর নিচে বা শহর "Los Angeles" এমন ইউজার খুঁজুন
+db.users.find({ $or: [{ age: { $lt: 30 } }, { city: "Los Angeles" }] });
+```
+
+---
+
+### **ডেটা ইন্সপেকশন অপারেটর: `$exists`, `$type`, এবং `$size`**
+
+এই অপারেটরগুলি আপনাকে বিশেষ কিছু শর্ত যেমন একটি ফিল্ডের অস্তিত্ব, ডেটা টাইপ এবং অ্যারে সাইজ পরীক্ষা করতে সাহায্য করে।
+
+```javascript
+// "city" ফিল্ড আছে এমন ইউজার খুঁজুন
+db.users.find({ city: { $exists: true } });
+
+// "age" ফিল্ডের টাইপ "number" এমন ইউজার খুঁজুন
+db.users.find({ age: { $type: "number" } });
+
+// "tags" অ্যারে যার সাইজ 3 ঠিকানা এমন ইউজার খুঁজুন
+db.users.find({ tags: { $size: 3 } });
+```
+
+---
+
+### **অ্যারে অপারেটর: `$all` এবং `$elemMatch`**
+
+এই অপারেটরগুলি অ্যারে সম্পর্কিত কাজ করতে সাহায্য করে।
+
+- `$all` ব্যবহার করলে অ্যারের সব উপাদান থাকতে হবে।
+- `$elemMatch` ব্যবহার করলে, কোনো একটি উপাদান নির্দিষ্ট শর্ত পূরণ করলে সে ডকুমেন্ট মিলবে।
+
+```javascript
+// "developer" এবং "javascript" ট্যাগ সহ ইউজার খুঁজুন
+db.users.find({ tags: { $all: ["developer", "javascript"] } });
+
+// "TechCorp" কোম্পানির অন্তর্গত অভিজ্ঞতায় যেখানে 2+ বছর কাজ করা হয়েছে এমন ইউজার খুঁজুন
+db.users.find({
+  experience: { $elemMatch: { company: "TechCorp", years: { $gte: 2 } } },
+});
+```
+
+---
+
+### **ডকুমেন্ট আপডেট করা: `$set`, `$addToSet`, `$push`**
+
+ডকুমেন্ট আপডেট করার জন্য এই অপারেটরগুলি ব্যবহার করা হয়।
+
+```javascript
+// "Alice" এর শহর "Chicago" তে আপডেট করুন
+db.users.updateOne({ name: "Alice" }, { $set: { city: "Chicago" } });
+
+// "tags" অ্যারে তে একটি ইউনিক ট্যাগ যোগ করুন
+db.users.updateOne({ name: "Alice" }, { $addToSet: { tags: "backend" } });
+
+// "skills" অ্যারে তে একটি নতুন স্কিল যোগ করুন (ইউনিকনেস চেক না করে)
+db.users.updateOne({ name: "Alice" }, { $push: { skills: "MongoDB" } });
+```
+
+---
+
+### **ফিল্ড বা অ্যারে উপাদান অপসারণ: `$unset`, `$pop`, `$pull`, `$pullAll`**
+
+এই অপারেটরগুলি ডকুমেন্ট থেকে ফিল্ড বা অ্যারে উপাদান অপসারণ করতে সাহায্য করে।
+
+```javascript
+// "city" ফিল্ডটি ডিলিট করুন
+db.users.updateOne({ name: "Alice" }, { $unset: { city: "" } });
+
+// "skills" অ্যারে থেকে শেষ উপাদান অপসারণ করুন
+db.users.updateOne({ name: "Alice" }, { $pop: { skills: 1 } });
+
+// "Node.js" স্কিলটি "skills" অ্যারে থেকে সরিয়ে ফেলুন
+db.users.updateOne({ name: "Alice" }, { $pull: { skills: "Node.js" } });
+
+// "MongoDB" এবং "Express" স্কিলগুলো "skills" অ্যারে থেকে সরিয়ে ফেলুন
+db.users.updateOne(
+  { name: "Alice" },
+  { $pullAll: { skills: ["MongoDB", "Express"] } }
+);
+```
+
+---
+
+### **অ্যাডভান্সড `$set` ব্যবহার**
+
+`$set` অপারেটরটি nested ফিল্ড আপডেট করতে বা নতুন ফিল্ড তৈরি করতে সাহায্য করে।
+
+```javascript
+// Nested ফিল্ড "address.city" আপডেট করুন
+db.users.updateOne({ name: "Alice" }, { $set: { "address.city": "Chicago" } });
+
+// একসাথে একাধিক ফিল্ড আপডেট করুন
+db.users.updateOne({ name: "Alice" }, { $set: { city: "Boston", age: 30 } });
+```
+
+---
+
+### **ডকুমেন্ট ডিলিট এবং কোলেকশন ড্রপ করা**
+
+যখন আপনি ডকুমেন্ট বা কোলেকশন মুছতে চান, তখন এটি ব্যবহার করুন।
+
+```javascript
+// বয়স 50 এর বেশি এমন ইউজার ডিলিট করুন
+db.users.deleteMany({ age: { $gt: 50 } });
+
+// পুরো "users" কোলেকশন ড্রপ করুন
+db.users.drop();
+```
+
+---
+
+এই ছিল MongoDB এর কিছু সাধারণ অপারেটর এবং কুয়েরির ব্যবহার। MongoDB আপনাকে বিভিন্ন ধরনের ডেটা পরিচালনা ও ফিল্টার করার জন্য শক্তিশালী টুলস দেয়।
+
+----
 # MongoDB-এর Aggregation Framework :
 
 বিভিন্ন ধাপে ডেটা সংগ্রহ, বিশ্লেষণ এবং পুনর্গঠন করার একটি শক্তিশালী টুল। এটি ব্যবহার করে আপনি ডেটা ফিল্টার করতে, গোষ্ঠীভুক্ত করতে, এবং রূপান্তর করতে পারবেন। এখানে আমরা একটি নমুনা ডকুমেন্ট এবং কিছু কমন Aggregation স্টেজ উদাহরণ হিসেবে ব্যবহার করছি।
