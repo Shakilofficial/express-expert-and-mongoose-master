@@ -378,7 +378,7 @@ This guide covers the essentials of MongoDB operators, giving you the flexibilit
 
 ---
 
-:::::::::::::::::::NOTE:::::::::::::::
+# :::::::::::::::::::NOTE:::::::::::::::
 
 ## MongoDB Aggregation Framework with Sample Document
 
