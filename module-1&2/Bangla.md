@@ -158,6 +158,103 @@ db.users.aggregate([
 
 MongoDB-এর Aggregation Framework এবং উপরের টুলগুলো বিভিন্ন ডেটা ম্যানিপুলেশনে অত্যন্ত কার্যকর।
 
+# Explain the solution of Task-1
+
+এখানে প্রতিটি MongoDB কুয়েরি এবং তাদের ব্যাখ্যা দেওয়া হল:
+
+---
+
+### 1. **বয়স ৩০ এর বেশি এমন সকল ডকুমেন্ট খুঁজুন এবং শুধুমাত্র `name` এবং `email` ফিল্ড দেখান।**
+
+```javascript
+db.collection.find({ age: { $gt: 30 } }, { name: 1, email: 1, _id: 0 });
+```
+
+এখানে, `$gt: 30` ব্যবহার করা হয়েছে যেটি মানে হচ্ছে বয়স ৩০ এর বেশি হতে হবে। দ্বিতীয় প্যারামিটার `{ name: 1, email: 1, _id: 0 }` দিয়ে আমরা শুধু `name` এবং `email` ফিল্ড চাচ্ছি, `_id` বাদ দেওয়া হয়েছে।
+
+---
+
+### 2. **যেসব ডকুমেন্টে প্রিয় রং "Maroon" অথবা "Blue" তা খুঁজুন।**
+
+```javascript
+db.collection.find({ favoriteColor: { $in: ["Maroon", "Blue"] } });
+```
+
+এখানে, `$in` অপারেটর ব্যবহার করা হয়েছে যা চেক করবে যে `favoriteColor` এর মান "Maroon" অথবা "Blue" কিনা।
+
+---
+
+### 3. **যেসব ডকুমেন্টে `skills` অ্যারে খালি আছে তা খুঁজুন।**
+
+```javascript
+db.collection.find({ skills: { $size: 0 } });
+```
+
+এখানে, `$size: 0` ব্যবহার করা হয়েছে যাতে `skills` অ্যারের সাইজ ০ (খালি) হয়।
+
+---
+
+### 4. **যেসব ডকুমেন্টে "JavaScript" এবং "Java" দুইটি স্কিলই রয়েছে তা খুঁজুন।**
+
+```javascript
+db.collection.find({ "skills.name": { $all: ["JavaScript", "Java"] } });
+```
+
+এখানে, `$all` অপারেটর ব্যবহার করা হয়েছে যাতে `skills.name` ফিল্ডে "JavaScript" এবং "Java" দুইটি স্কিলই উপস্থিত থাকে।
+
+---
+
+### 5. **ইমেইল `"amccurry3@cnet.com"` এর জন্য একটি নতুন স্কিল অ্যারে তে যোগ করুন। স্কিল হলো `{"name": "Python", "level": "Beginner", "isLearning": true}`।**
+
+#### প্রথমে, ডকুমেন্টটি ইনসার্ট করা (যদি না থাকে):
+
+```javascript
+db.collection.updateOne(
+  { email: "amccurry3@cnet.com" },
+  { $setOnInsert: { email: "amccurry3@cnet.com", skills: [] } },
+  { upsert: true }
+);
+```
+
+এখানে, `$setOnInsert` ব্যবহার করা হয়েছে যাতে যদি `"amccurry3@cnet.com"` এর জন্য কোন ডকুমেন্ট না থাকে তবে এটি নতুন ডকুমেন্ট হিসেবে যুক্ত হয় এবং `skills` অ্যারে খালি হবে।
+
+#### তারপর, নতুন স্কিলটি অ্যারে তে যোগ করা:
+
+```javascript
+db.collection.updateOne(
+  { email: "amccurry3@cnet.com" },
+  { $push: { skills: { name: "Python", level: "Beginner", isLearning: true } } }
+);
+```
+
+এখানে, `$push` ব্যবহার করা হয়েছে যাতে `skills` অ্যারে তে নতুন স্কিল যোগ করা যায়।
+
+---
+
+### 6. **"Spanish" নামক একটি নতুন ভাষা ভাষার তালিকায় যোগ করুন।**
+
+```javascript
+db.collection.updateMany({}, { $addToSet: { languages: "Spanish" } });
+```
+
+এখানে, `$addToSet` ব্যবহার করা হয়েছে যাতে `languages` অ্যারে তে "Spanish" ভাষা যদি আগে না থাকে তবে এটি যোগ করা হয়, কিন্তু যদি থাকে তবে সেটি আবার যোগ হবে না।
+
+---
+
+### 7. **`skills` অ্যারে থেকে "Kotlin" স্কিলটি সরান।**
+
+```javascript
+db.collection.updateMany({}, { $pull: { skills: { name: "Kotlin" } } });
+```
+
+এখানে, `$pull` ব্যবহার করা হয়েছে যাতে `skills` অ্যারে থেকে "Kotlin" স্কিলটি সরিয়ে ফেলা হয়।
+
+---
+
+এই কুয়েরিগুলি MongoDB ডাটাবেসে নির্দিষ্ট তথ্য অনুসন্ধান এবং আপডেটের জন্য ব্যবহৃত হয়, এবং প্রতিটি কুয়েরি তাদের উদ্দেশ্য এবং ব্যবহার বুঝিয়ে দেয়।
+
+---
+
 # Explain the solution of Task-2
 
 এই সমস্যাগুলোর সমাধান MongoDB অ্যাগ্রিগেশন ফ্রেমওয়ার্ক ব্যবহার করে করা হয়েছে। নিচে প্রতিটি সমস্যার সমাধান বাংলায় বিস্তারিতভাবে ব্যাখ্যা করা হলো:
