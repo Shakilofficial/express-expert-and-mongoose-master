@@ -1,12 +1,22 @@
 import { Request, Response } from 'express';
+import studentValidationSchema from './student.joi.validation';
 import { StudentServices } from './student.service';
 
 const createStudent = async (req: Request, res: Response) => {
   try {
-    const { student: studentData } = req.body;
-    const result = await StudentServices.createStudentIntoDB(studentData);
+    //creating a schema validation  using joi
 
-    res.status(200).json({
+    const { student: studentData } = req.body;
+    const { error } = studentValidationSchema.validate(studentData);
+    const result = await StudentServices.createStudentIntoDB(studentData);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Student Data',
+        error: error.details,
+      });
+    }
+    res.status(201).json({
       success: true,
       message: 'Student is created successfully',
       data: result,

@@ -8,14 +8,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentControllers = void 0;
+const student_joi_validation_1 = __importDefault(require("./student.joi.validation"));
 const student_service_1 = require("./student.service");
 const createStudent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        //creating a schema validation  using joi
         const { student: studentData } = req.body;
+        const { error } = student_joi_validation_1.default.validate(studentData);
         const result = yield student_service_1.StudentServices.createStudentIntoDB(studentData);
-        res.status(200).json({
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid Student Data',
+                error: error.details,
+            });
+        }
+        res.status(201).json({
             success: true,
             message: 'Student is created successfully',
             data: result,
