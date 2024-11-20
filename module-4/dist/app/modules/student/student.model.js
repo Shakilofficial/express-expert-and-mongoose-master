@@ -8,9 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Student = void 0;
 const mongoose_1 = require("mongoose");
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const config_1 = __importDefault(require("../../config"));
 const studentNameSchema = new mongoose_1.Schema({
     firstName: {
         type: String,
@@ -81,7 +86,13 @@ const studentSchema = new mongoose_1.Schema({
     id: {
         type: String,
         unique: true,
-        required: true,
+        required: [true, 'Please enter student id'],
+    },
+    password: {
+        type: String,
+        required: [true, 'Please enter password'],
+        minlength: [6, 'Password must be at least 6 characters'],
+        maxlength: [20, 'Password must be less than 20 characters'],
     },
     name: { type: studentNameSchema, required: true },
     gender: {
@@ -141,6 +152,22 @@ const studentSchema = new mongoose_1.Schema({
         default: 'active',
     },
 }, { timestamps: true });
+//pre-save hook/middleware
+studentSchema.pre('save', function (next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        //hash password
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const user = this;
+        user.password = yield bcrypt_1.default.hash(user.password, Number(config_1.default.bcrypt_salt_rounds));
+        next();
+    });
+});
+//post-save hook/middleware
+studentSchema.post('save', function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(this, 'student saved');
+    });
+});
 //creating custom static method
 studentSchema.statics.isUserExists = function (id) {
     return __awaiter(this, void 0, void 0, function* () {

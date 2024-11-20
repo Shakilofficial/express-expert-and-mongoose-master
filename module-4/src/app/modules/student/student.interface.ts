@@ -22,6 +22,7 @@ export type TLocalGuardian = {
 
 export interface IStudent {
   id: string;
+  password: string;
   name: TStudentName;
   gender: 'male' | 'female' | 'other';
   dateOfBirth: string;

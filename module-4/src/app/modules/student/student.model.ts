@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-
+import bcrypt from 'bcrypt';
 import {
   IStudent,
   StudentModel,
@@ -7,6 +7,7 @@ import {
   TLocalGuardian,
   TStudentName,
 } from './student.interface';
+import config from '../../config';
 
 const studentNameSchema = new Schema<TStudentName>({
   firstName: {
@@ -82,7 +83,13 @@ const studentSchema = new Schema<IStudent, StudentModel>(
     id: {
       type: String,
       unique: true,
-      required: true,
+      required: [true, 'Please enter student id'],
+    },
+    password: {
+      type: String,
+      required: [true, 'Please enter password'],
+      minlength: [6, 'Password must be at least 6 characters'],
+      maxlength: [20, 'Password must be less than 20 characters'],
     },
     name: { type: studentNameSchema, required: true },
     gender: {
@@ -146,14 +153,28 @@ const studentSchema = new Schema<IStudent, StudentModel>(
   { timestamps: true },
 );
 
+//pre-save hook/middleware
+studentSchema.pre('save', async function (next) {
+  //hash password
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this;
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds),
+  );
+  next();
+});
+
+//post-save hook/middleware
+studentSchema.post('save', async function () {
+  console.log(this,'student saved');
+}); 
+
 //creating custom static method
 studentSchema.statics.isUserExists = async function (id: string) {
   const result = await Student.findOne({ id });
   return result;
 };
-
-
-
 
 /* //custom instance method
 studentSchema.methods.isUserExist = async function (id: string) {
@@ -161,4 +182,4 @@ studentSchema.methods.isUserExist = async function (id: string) {
   return result;
 }; */
 
-export const Student = model<IStudent,StudentModel>('Student', studentSchema);
+export const Student = model<IStudent, StudentModel>('Student', studentSchema);

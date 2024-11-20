@@ -27,6 +27,10 @@ const localGuardianValidationSchema = zod_1.z.object({
 });
 const studentValidationSchema = zod_1.z.object({
     id: zod_1.z.string().min(1, 'ID is required'),
+    password: zod_1.z
+        .string()
+        .min(6, 'Password must be at least 6 characters')
+        .max(20, 'Password must be less than 20 characters'),
     name: studentNameValidationSchema.required(),
     gender: zod_1.z.enum(['male', 'female', 'other'], {
         required_error: 'Gender is required',
