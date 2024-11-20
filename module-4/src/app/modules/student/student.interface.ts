@@ -9,20 +9,19 @@ export type Guardian = {
 
 export type StudentName = {
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
 };
 export type LocalGuardian = {
   name: string;
   occupation: string;
   contactNo: string;
-  address: string;
 };
 
 export interface Student {
   id: string;
   name: StudentName;
-  gender: 'male' | 'female';
+  gender: 'male' | 'female'|'other';
   dateOfBirth: string;
   email: string;
   contactNo: string;
