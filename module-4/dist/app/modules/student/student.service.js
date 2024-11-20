@@ -13,12 +13,18 @@ exports.StudentServices = void 0;
 const student_model_1 = require("./student.model");
 const createStudentIntoDB = (studentData) => __awaiter(void 0, void 0, void 0, function* () {
     // const result = await StudentModel.create(student);//built in static method
-    const student = new student_model_1.Student(studentData);
+    /*   const student = new Student(studentData);
+  
     //check if student with same id already exists
-    if (yield student.isUserExist(studentData.id)) {
+    if( await student.isUserExist(studentData.id)){
+      throw new Error('Student with same id already exists');
+    }
+  
+    const result = await student.save();  //built in instance method */
+    if (yield student_model_1.Student.isUserExists(studentData.id)) {
         throw new Error('Student with same id already exists');
     }
-    const result = yield student.save(); //built in instance method
+    const result = yield student_model_1.Student.create(studentData);
     return result;
 });
 const getAllStudentsFromDB = () => __awaiter(void 0, void 0, void 0, function* () {

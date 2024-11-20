@@ -2,7 +2,6 @@ import { model, Schema } from 'mongoose';
 
 import {
   IStudent,
-  StudentMethdos,
   StudentModel,
   TGuardian,
   TLocalGuardian,
@@ -78,7 +77,7 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<IStudent, StudentModel, StudentMethdos>(
+const studentSchema = new Schema<IStudent, StudentModel>(
   {
     id: {
       type: String,
@@ -147,9 +146,19 @@ const studentSchema = new Schema<IStudent, StudentModel, StudentMethdos>(
   { timestamps: true },
 );
 
-studentSchema.methods.isUserExist = async function (id: string) {
+//creating custom static method
+studentSchema.statics.isUserExists = async function (id: string) {
   const result = await Student.findOne({ id });
   return result;
 };
+
+
+
+
+/* //custom instance method
+studentSchema.methods.isUserExist = async function (id: string) {
+  const result = await Student.findOne({ id });
+  return result;
+}; */
 
 export const Student = model<IStudent,StudentModel>('Student', studentSchema);

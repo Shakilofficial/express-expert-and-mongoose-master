@@ -141,10 +141,16 @@ const studentSchema = new mongoose_1.Schema({
         default: 'active',
     },
 }, { timestamps: true });
-studentSchema.methods.isUserExist = function (id) {
+//creating custom static method
+studentSchema.statics.isUserExists = function (id) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield exports.Student.findOne({ id });
         return result;
     });
 };
+/* //custom instance method
+studentSchema.methods.isUserExist = async function (id: string) {
+  const result = await Student.findOne({ id });
+  return result;
+}; */
 exports.Student = (0, mongoose_1.model)('Student', studentSchema);
