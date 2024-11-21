@@ -10,4 +10,4 @@ export type StudentModel = Model<
   Record<string, never>,
   StudentMethdos
 >;
- */ 
+ */

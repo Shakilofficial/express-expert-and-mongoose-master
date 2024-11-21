@@ -36,16 +36,14 @@ export interface IStudent {
   localGuardian: TLocalGuardian;
   profileImage?: string;
   isActive: 'active' | 'blocked';
+  isDeleted: boolean;
 }
-
 
 //for creating static method of student
 
-export interface StudentModel extends Model<IStudent>{
-  isUserExists(id:string):Promise<IStudent | null>
+export interface StudentModel extends Model<IStudent> {
+  isUserExists(id: string): Promise<IStudent | null>;
 }
-
-
 
 //for creating instance of student
 /* export type StudentMethdos = {

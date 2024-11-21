@@ -67,7 +67,11 @@ const getAllStudents = (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
     catch (err) {
-        console.log(err);
+        res.status(500).json({
+            success: false,
+            message: err.message || 'something went wrong',
+            error: err,
+        });
     }
 });
 const getSingleStudent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -81,11 +85,34 @@ const getSingleStudent = (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
     }
     catch (err) {
-        console.log(err);
+        res.status(500).json({
+            success: false,
+            message: err.message || 'something went wrong',
+            error: err,
+        });
+    }
+});
+const deleteStudent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { studentId } = req.params;
+        const result = yield student_service_1.StudentServices.deleteStudentFromDB(studentId);
+        res.status(200).json({
+            success: true,
+            message: 'Student is deleted successfully',
+            data: result,
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message || 'something went wrong',
+            error: err,
+        });
     }
 });
 exports.StudentControllers = {
     createStudent,
     getAllStudents,
     getSingleStudent,
+    deleteStudent,
 };

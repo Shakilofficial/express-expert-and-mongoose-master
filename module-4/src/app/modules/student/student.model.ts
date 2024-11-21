@@ -1,5 +1,6 @@
-import { model, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { model, Schema } from 'mongoose';
+import config from '../../config';
 import {
   IStudent,
   StudentModel,
@@ -7,7 +8,6 @@ import {
   TLocalGuardian,
   TStudentName,
 } from './student.interface';
-import config from '../../config';
 
 const studentNameSchema = new Schema<TStudentName>({
   firstName: {
@@ -114,12 +114,12 @@ const studentSchema = new Schema<IStudent, StudentModel>(
     },
     contactNo: {
       type: String,
-      unique: true,
+
       required: true,
     },
     emergencyContactNo: {
       type: String,
-      unique: true,
+
       required: true,
     },
     bloodGroup: {
@@ -149,9 +149,17 @@ const studentSchema = new Schema<IStudent, StudentModel>(
       enum: ['active', 'blocked'],
       default: 'active',
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true },
+  { toJSON: { virtuals: true }, timestamps: true },
 );
+
+studentSchema.virtual('fullName').get(function () {
+  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
+});
 
 //pre-save hook/middleware
 studentSchema.pre('save', async function (next) {
@@ -166,9 +174,26 @@ studentSchema.pre('save', async function (next) {
 });
 
 //post-save hook/middleware
-studentSchema.post('save', async function () {
-  console.log(this,'student saved');
-}); 
+studentSchema.post('save', async function (doc, next) {
+  doc.password = '';
+  next();
+});
+
+//Query middleware the database
+studentSchema.pre('find', async function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+studentSchema.pre('findOne', async function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+studentSchema.pre('aggregate', async function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
 
 //creating custom static method
 studentSchema.statics.isUserExists = async function (id: string) {

@@ -13,8 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Student = void 0;
-const mongoose_1 = require("mongoose");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const mongoose_1 = require("mongoose");
 const config_1 = __importDefault(require("../../config"));
 const studentNameSchema = new mongoose_1.Schema({
     firstName: {
@@ -117,12 +117,10 @@ const studentSchema = new mongoose_1.Schema({
     },
     contactNo: {
         type: String,
-        unique: true,
         required: true,
     },
     emergencyContactNo: {
         type: String,
-        unique: true,
         required: true,
     },
     bloodGroup: {
@@ -151,7 +149,14 @@ const studentSchema = new mongoose_1.Schema({
         enum: ['active', 'blocked'],
         default: 'active',
     },
-}, { timestamps: true });
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
+}, { toJSON: { virtuals: true }, timestamps: true });
+studentSchema.virtual('fullName').get(function () {
+    return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
+});
 //pre-save hook/middleware
 studentSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -163,9 +168,29 @@ studentSchema.pre('save', function (next) {
     });
 });
 //post-save hook/middleware
-studentSchema.post('save', function () {
+studentSchema.post('save', function (doc, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(this, 'student saved');
+        doc.password = '';
+        next();
+    });
+});
+//Query middleware the database
+studentSchema.pre('find', function (next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        this.find({ isDeleted: { $ne: true } });
+        next();
+    });
+});
+studentSchema.pre('findOne', function (next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        this.find({ isDeleted: { $ne: true } });
+        next();
+    });
+});
+studentSchema.pre('aggregate', function (next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+        next();
     });
 });
 //creating custom static method
