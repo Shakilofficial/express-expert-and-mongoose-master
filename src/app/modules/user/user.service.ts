@@ -27,7 +27,7 @@ const updateUser = async (id: string, data: IUser) => {
 };
 
 const deleteUser = async (id: string) => {
-  const result = await User.findByIdAndDelete(id);
+  const result = await User.updateOne({ _id: id }, { status: 'suspended' });
   return result;
 };
 

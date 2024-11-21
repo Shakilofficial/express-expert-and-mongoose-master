@@ -1,7 +1,7 @@
-import { Schema, model } from 'mongoose';
-import { IUser, IUserModel } from './user.interface';
 import bcrypt from 'bcrypt';
+import { Schema, model } from 'mongoose';
 import config from '../../config';
+import { IUser, IUserModel } from './user.interface';
 // Sub-schema for User Name
 const userNameSchema = new Schema({
   firstName: {
@@ -94,7 +94,9 @@ userSchema.post('save', async function (doc, next) {
   next();
 });
 
-userSchema.statics.isUserExists = async function (email: string):Promise<IUser|null> {
+userSchema.statics.isUserExists = async function (
+  email: string,
+): Promise<IUser | null> {
   const result = await User.findOne({ email });
   return result;
 };
