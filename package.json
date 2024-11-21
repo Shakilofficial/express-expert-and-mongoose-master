@@ -9,8 +9,7 @@
     "build": "tsc",
     "lint": "npx eslint src --ignore-pattern '.js,.ts'",
     "lint:fix": "npx eslint src --fix",
-    "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
-    "prettier:fix": "npx prettier --write src",
+    "format": "npx prettier --ignore-path .prettierignore --write \"**/*.{js,ts,json}\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

@@ -7,7 +7,9 @@ const app: Application = express();
 
 // Middlewares
 app.use(cors());
+
 app.use(cookieParser());
+
 app.use(express.json());
 
 // API Routes Setup
